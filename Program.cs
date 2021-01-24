@@ -13,146 +13,106 @@ namespace Amin_Database_Project_AssetTracking_Solution
         static AssetContext _AssetContext = new AssetContext();
         static void Main(string[] args)
         {
-            Console.WriteLine("What do you want to do Assets database ?");
-            Console.WriteLine("If you want to create or add a new asset to the database enter C");
-            Console.WriteLine("If you want to read from the database enter R");
-            Console.WriteLine("If you want to update the database enter U");
-            Console.WriteLine("If you want to delete an asset from the database enter D");
+            Console.WriteLine("What do you want to do in Assets database ? (Write computer or phone )");
+           
             string input = Console.ReadLine();
-            while (true)
+            while (input == "computer" || input == "phone")
             {
-
-                if (input.ToLower() == "c")
+                Console.WriteLine("If you want to create or add a new asset to the database enter C");
+                Console.WriteLine("If you want to read from the database enter R");
+                Console.WriteLine("If you want to update the database enter U");
+                Console.WriteLine("If you want to delete an asset from the database enter D");
+                string input1 = Console.ReadLine();
+                if (input1.ToLower() == "c" && input.ToLower() == "computer")
                 {
-                    Computer computer = new Computer("iPhone", "X", GetDate("2018-07-15"), new Office("Sweden"), 12450, "SEK", 8.45);
+                    Console.WriteLine("Write the name of a computer");
+                    string namn = Console.ReadLine();
+                    Console.WriteLine("Write the model of the computer");
+                    string mod = Console.ReadLine();
+                    Console.WriteLine("Write the purchaseDate of the computer in this formate (2018 - 07 - 15)");
+                    DateTime datum = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    Console.WriteLine("Write the name of the country");
+                    Office place = new Office (Console.ReadLine());
+                    Console.WriteLine("Write the purchasePrice");
+                    double pris = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Write the currency");
+                    string cur = Console.ReadLine();
+                    Console.WriteLine("Write the currencyRate");
+                    double rate = Convert.ToInt32(Console.ReadLine());
+
+                    Computer computer = new Computer(namn, mod, datum, place, pris, cur, rate);
                     _AssetContext.computers.Add(computer); 
                     _AssetContext.SaveChanges(); 
                 }
-                else if (input.ToLower() == "r")
+                else if (input1.ToLower() == "r" && input.ToLower() == "computer")
                 {
                     Asset assetRead = _AssetContext.computers.FirstOrDefault();
                 }
-                else if (input.ToLower() == "u")
+                else if (input1.ToLower() == "u" && input.ToLower() == "computer")
                 {
                     Asset databaseUpdate = _AssetContext.computers.FirstOrDefault();
-                    databaseUpdate.Model = "240 GL"; 
+                    databaseUpdate.Model = Console.ReadLine(); 
                     _AssetContext.SaveChanges(); 
 
                 }
-                else if (input.ToLower() == "d")
+                else if (input1.ToLower() == "d" && input.ToLower() == "computer")
                 {
-                    Computer assetDelete = _AssetContext.computers.Where(car => car.Brand == "Asus").FirstOrDefault();
+                    Console.WriteLine("Write the name of a computer in order to delete from the database");
+                    string namn1 = Console.ReadLine();
+                    Computer assetDelete = _AssetContext.computers.Where(computer => computer.Brand == namn1).FirstOrDefault();
                     _AssetContext.computers.Remove(assetDelete);
                     _AssetContext.SaveChanges(); 
 
                 }
-            }
-            //No input from Console in this solution 
-            List<Asset> assets = PrepareAssets();
-            List<ExchangeRate> exchangeRates = PrepareExchangeRates();
-            assets = SortAssets(assets);
-            PrintHeader();
-            PrintData(assets, exchangeRates);
-            Console.ReadLine();
-        }
-        static List<Asset> PrepareAssets()
-        {
-            return new List<Asset>()
-            {
-                new Phone("iPhone", "X", GetDate("2018-07-15"),new Office("Sweden"), 12450, "SEK",8.45),
-                new Computer("Asus", "W234", GetDate("2017-04-21"),new Office("USA"), 1200, "USD",1.00),
-                new Phone("iPhone", "11", GetDate("2020-09-25"),new Office("Spain"), 990, "EUR",10.12),
-                new Computer("Lenovo", "Yoga 530", GetDate("2019-04-21"),new Office("USA"), 1530, "USD",1.00),
-                new Phone("iPhone", "8", GetDate("2018-03-16"),new Office("Spain"), 970, "EUR",10.12),
-                new Computer("Lenovo", "Yoga 730", GetDate("2018-05-28"),new Office("USA"), 1835, "USD",1.00),
-                new Phone("Motorola", "Razr", GetDate("2020-03-16"),new Office("Sweden"), 9700, "SEK",8.45),
-                new Computer("HP", "Elitebook", GetDate("2020-10-02"),new Office("Sweden"), 1588, "SEK",8.45)
-            };
-        }
-        static List<ExchangeRate> PrepareExchangeRates()
-        {
-            return new List<ExchangeRate>()
-            {
-                new ExchangeRate("USD",1.00),
-                new ExchangeRate("SEK", 0.12),
-                new ExchangeRate("EUR", 1.21)
-            };
-        }
-        static List<Asset> SortAssets(List<Asset> assets)
-        {
-            assets = assets.OrderBy(asset => asset.GetType().ToString()).ThenBy(asset => asset.PurchaseDate).ToList();
-            return assets;
-        }
-        static void PrintHeader()
-        {
-            Console.WriteLine(
-                Tab("Brand") +
-                Tab("Model") +
-                Tab("Office") +
-                Tab("Purchase Date") +
-                Tab("Price") +
-                Tab("Currency") +
-                Tab("In USD today")
-                );
-            Console.WriteLine(
-                Tab("-----") +
-                Tab("-----") +
-                Tab("------") +
-                Tab("-------------") +
-                Tab("-----") +
-                Tab("---------") +
-                Tab("------------")
-                );
-        }
-        static void PrintData(List<Asset> assets, List<ExchangeRate> exchangeRates)
-        {
-            assets.ForEach(asset => PreparePrintDataLine(asset, exchangeRates));
-        }
-        static DateTime GetDate(string date)
-        {
-            return DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-        }
-        static void PreparePrintDataLine(Asset asset, List<ExchangeRate> exchangeRates)
-        {
-            int daysWarning = 913; //Approx 30 months 
-            int daysAlarm = 1004;  //Approx 33 months 
-            TimeSpan diff = DateTime.Now - asset.PurchaseDate;
-            DecideForegroundColor(daysWarning, daysAlarm, diff);
-            double usdRateToday = exchangeRates.Where(exchangeRate => exchangeRate.Currency == asset.Currency).Select(ex => ex.Rate).FirstOrDefault();
-            PrintDataLine(asset, usdRateToday);
-            Console.ForegroundColor = ConsoleColor.White;
-        }          
 
-        static void DecideForegroundColor(int daysWarning, int daysAlarm, TimeSpan diff)
-        {
-            if (diff.Days > daysAlarm)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
+
+                if (input1.ToLower() == "c" && input.ToLower() == "phone")
+                {
+                    Console.WriteLine("Write the name of a phone");
+                    string namn = Console.ReadLine();
+                    Console.WriteLine("Write the model of the phone");
+                    string mod = Console.ReadLine();
+                    Console.WriteLine("Write the purchaseDate of the phone in this formate (2018 - 07 - 15)");
+                    DateTime datum = DateTime.ParseExact(Console.ReadLine(), "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+                    Console.WriteLine("Write the name of the country");
+                    Office place = new Office(Console.ReadLine());
+                    Console.WriteLine("Write the purchasePrice");
+                    double pris = Convert.ToInt32(Console.ReadLine());
+                    Console.WriteLine("Write the currency");
+                    string cur = Console.ReadLine();
+                    Console.WriteLine("Write the currencyRate");
+                    double rate = Convert.ToInt32(Console.ReadLine());
+
+                    Phone phone = new Phone(namn, mod, datum, place, pris, cur, rate);
+                    _AssetContext.phones.Add(phone);
+                    _AssetContext.SaveChanges();
+                }
+                else if (input1.ToLower() == "r" && input.ToLower() == "phone")
+                {
+                    Asset assetRead = _AssetContext.phones.FirstOrDefault();
+                }
+                else if (input1.ToLower() == "u" && input.ToLower() == "phone")
+                {
+                    Asset databaseUpdate = _AssetContext.phones.FirstOrDefault();
+                    databaseUpdate.Model = Console.ReadLine();
+                    _AssetContext.SaveChanges();
+
+                }
+                else if (input1.ToLower() == "d" && input.ToLower() == "phone")
+                {
+                    Console.WriteLine("Write the name of a the phone in order to delete from the database");
+                    string namn2 = Console.ReadLine();
+                    Phone assetDelete = _AssetContext.phones.Where(phone => phone.Brand == namn2).FirstOrDefault();
+                    _AssetContext.phones.Remove(assetDelete);
+                    _AssetContext.SaveChanges();
+
+                }
             }
-            else if (diff.Days > daysWarning)
-            {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-            }
+           
         }
-        static void PrintDataLine(Asset asset, double usdRateToday)
-        {
-            Console.WriteLine(
-                            Tab(asset.Brand) +
-                            Tab(asset.Model) +
-                            Tab(asset.Office.Name) +
-                            Tab(asset.PurchaseDate.ToShortDateString()) +
-                            Tab(asset.PurchasePrice.ToString("0.##")) +
-                            Tab(asset.Currency) +
-                            Tab((asset.PurchasePrice * usdRateToday).ToString("0.##"))
-                            );
-        }
-        static string Tab(string input)
-        {
-            return input.PadRight(14);
-        }
+       
     }
+        
+       
+       
 } 
